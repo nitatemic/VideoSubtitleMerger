@@ -4,7 +4,7 @@ struct ContentView: View {
     @State private var videoFile: URL?
     @State private var subtitleFile: URL?
     @State private var mergeStatus: String?
-    @State private var selectedLanguage: String = "eng"
+    @State private var selectedLanguage: String = "fra"
     
     let subtitleLanguages = ["eng": "Anglais", "fra": "Français", "spa": "Espagnol"] // Liste des langues disponibles
     
@@ -131,6 +131,13 @@ struct ContentView: View {
             mergeStatus = "Fichier fusionné : \(outputFilePath)"
         } catch {
             mergeStatus = "Erreur lors de la fusion : \(error.localizedDescription)"
+        }
+        
+        // Réinitialiser toutes les variables après la fusion
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            self.videoFile = nil
+            self.subtitleFile = nil
+            self.mergeStatus = nil
         }
     }
 }
