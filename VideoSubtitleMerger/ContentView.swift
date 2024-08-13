@@ -4,7 +4,10 @@ struct ContentView: View {
     @State private var videoFile: URL?
     @State private var subtitleFile: URL?
     @State private var mergeStatus: String?
-
+    @State private var selectedLanguage: String = "eng"
+    
+    let subtitleLanguages = ["eng": "Anglais", "fra": "Français", "spa": "Espagnol"] // Liste des langues disponibles
+    
     var body: some View {
         VStack {
             // Zone pour la vidéo
@@ -52,7 +55,22 @@ struct ContentView: View {
                         .padding(.top, 5)
                 }
             }
-
+            
+            // Sélecteur de langue
+            VStack {
+                Text("Choisissez la langue des sous-titres")
+                    .font(.headline)
+                    .padding()
+                
+                Picker("Langue", selection: $selectedLanguage) {
+                    ForEach(subtitleLanguages.keys.sorted(), id: \.self) { code in
+                        Text(subtitleLanguages[code] ?? "Inconnue").tag(code)
+                    }
+                }
+                .pickerStyle(MenuPickerStyle())
+                .padding()
+            }
+            
             // Bouton de fusion
             if videoFile != nil && subtitleFile != nil {
                 Button("Fusionner") {
@@ -95,14 +113,14 @@ struct ContentView: View {
         let subtitleFilePath = subtitleFile.path
         let outputFilePath = videoFile.deletingPathExtension().appendingPathExtension("merged.mkv").path
         
-        // Construire la commande mkvmerge
+        // Construire la commande mkvmerge avec la langue sélectionnée
         let process = Process()
-        process.executableURL = URL(fileURLWithPath: "/opt/homebrew/bin/mkvmerge")
+        process.executableURL = URL(fileURLWithPath: "/usr/local/bin/mkvmerge") // ou le chemin correct
         process.arguments = [
             "-o", outputFilePath,
-            "--language", "0:eng", // Langue de la vidéo
+            "--language", "0:\(selectedLanguage)", // Langue de la vidéo
             videoFilePath,
-            "--language", "0:eng", // Langue des sous-titres
+            "--language", "0:\(selectedLanguage)", // Langue des sous-titres
             subtitleFilePath
         ]
         
